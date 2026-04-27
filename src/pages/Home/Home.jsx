@@ -1,5 +1,11 @@
+import Navbar from "../Shared/Navbar/Navbar";
+
 function Home() {
-  return <div>Home</div>;
+  return (
+    <div>
+      <Navbar></Navbar>
+    </div>
+  );
 }
 
 export default Home;
