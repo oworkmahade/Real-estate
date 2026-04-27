@@ -1,5 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
-// import userLogo from "../../../assets/user.png";
+import userLogo from "../../../assets/user.png";
 import { useContext } from "react";
 import { AuthContext } from "../../../providers/AuthProvider";
 
@@ -71,8 +71,8 @@ const Navbar = () => {
           <div>
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
               <div className="w-10 rounded-full">
-                {/* <img src={userLogo} /> */}
-                <img src={""} />
+                <img src={userLogo} />
+                {/* <img src={""} /> */}
               </div>
             </label>
           </div>
