@@ -77,6 +77,7 @@ function Login() {
       .then((result) => {
         const loggedUser = result.user;
         console.log(loggedUser.email, "google sign in successful");
+        navigate(location?.state ? location.state : "/");
       })
       .catch((error) => {
         console.log(error.message);
@@ -89,6 +90,7 @@ function Login() {
       .then((result) => {
         const loggedUser = result.user;
         console.log(loggedUser.email, "github sign in successful");
+        navigate(location?.state ? location.state : "/");
       })
       .catch((error) => {
         console.log(error.message);
