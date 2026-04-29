@@ -2,7 +2,7 @@ import Navbar from "../Shared/Navbar/Navbar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
 
 function Login() {
   // state for holding email from input field using useRef
@@ -15,7 +15,13 @@ function Login() {
   const location = useLocation();
   // receiving signInUser
   const authInfo = useContext(AuthContext);
-  const { signInUser, resetPassword, googleSignIn, githubSignIn } = authInfo;
+  const {
+    signInUser,
+    resetPassword,
+    googleSignIn,
+    githubSignIn,
+    facebookSignIn,
+  } = authInfo;
 
   const navigate = useNavigate();
 
@@ -97,7 +103,24 @@ function Login() {
       });
   };
 
-  // handle password reset
+  // facebook sign in handler
+
+  const handleFacebookSignIn = () => {
+    facebookSignIn()
+      .then((result) => {
+        // The signed-in user info.
+
+        const user = result.user;
+
+        console.log(user.email, "facebook login successful");
+        navigate(location?.state ? location.state : "/");
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  // handle password reset9430683452144
   const handlePasswordReset = () => {
     const email = emailRef.current?.value;
 
@@ -215,7 +238,7 @@ function Login() {
         </span>
 
         {/* login with  */}
-        <div className=" login-with mt-4 w-2/4 mx-auto">
+        <div className="w-2/4 mx-auto mt-4 login-with">
           <div className="flex flex-col items-start justify-center gap-4">
             <button
               onClick={handleGoogleSignIn}
@@ -230,6 +253,13 @@ function Login() {
             >
               <FaGithub />
               Login with Github
+            </button>
+            <button
+              onClick={handleFacebookSignIn}
+              className="w-full text-blue-600 border-2 border-blue-600 btn"
+            >
+              <FaFacebook />
+              Login with Facebook
             </button>
           </div>
         </div>

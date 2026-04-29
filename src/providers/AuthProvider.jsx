@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import app from "../firebase/firebase.config";
 import {
   createUserWithEmailAndPassword,
+  FacebookAuthProvider,
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
@@ -82,6 +83,14 @@ function AuthProvider({ children }) {
     return signInWithPopup(auth, githubProvider);
   };
 
+  // facebook sign in
+  const facebookAuthProvider = new FacebookAuthProvider();
+
+  const facebookSignIn = () => {
+    setLoading(true);
+    return signInWithPopup(auth, facebookAuthProvider);
+  };
+
   // value to pass to all child
   const authInfo = {
     user,
@@ -90,6 +99,7 @@ function AuthProvider({ children }) {
     logOut,
     googleSignIn,
     githubSignIn,
+    facebookSignIn,
     resetPassword,
     loading,
   };
