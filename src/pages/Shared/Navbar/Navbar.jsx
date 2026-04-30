@@ -1,5 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
-import userLogo from "../../../assets/user.png";
+// import userLogo from "../../../assets/user.png";
 import { useContext } from "react";
 import { AuthContext } from "../../../providers/AuthProvider";
 
@@ -25,11 +25,11 @@ const Navbar = () => {
       </li>
       <li>
         {" "}
-        <NavLink to="/about">About</NavLink>{" "}
+        <NavLink to="/updateProfile">Update Profile</NavLink>{" "}
       </li>
       <li>
         {" "}
-        <NavLink to="/career">Career</NavLink>{" "}
+        <NavLink to="/userProfile">User Profile</NavLink>{" "}
       </li>
     </>
   );
@@ -63,29 +63,36 @@ const Navbar = () => {
               |{navLink}
             </ul>
           </div>
+          <a className="text-xl font-bold btn btn-ghost">REAL ESTATE</a>
         </div>
         <div className="hidden navbar-center lg:flex">
           <ul className="px-1 menu menu-horizontal">{navLink}</ul>
         </div>
         <div className="flex flex-row gap-4 navbar-end">
-          <div>
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img src={userLogo} />
-                {/* <img src={""} /> */}
-              </div>
-            </label>
-          </div>
           {/* conditional rendering of login/logout button  */}
           <div>
             {user ? (
               <>
-                <button
-                  className="text-white bg-black btn"
-                  onClick={handleLogOut}
-                >
-                  Logout
-                </button>
+                <div className="flex flex-row items-center justify-center gap-4">
+                  <div>
+                    <label
+                      tabIndex={0}
+                      className="btn btn-ghost btn-circle avatar"
+                    >
+                      <div className="w-10 rounded-full">
+                        <img src={user?.photoURL} alt="User Avatar" />
+                      </div>
+                    </label>
+                  </div>
+                  <div>
+                    <button
+                      className="text-white bg-black btn"
+                      onClick={handleLogOut}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
               </>
             ) : (
               <>

@@ -3,6 +3,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Shared/Navbar/Navbar";
 import { AuthContext } from "../../providers/AuthProvider";
+import { updateProfile } from "firebase/auth";
 
 const Register = () => {
   const authInfo = useContext(AuthContext);
@@ -24,9 +25,9 @@ const Register = () => {
     // different method rather then e.target.email.value etc
 
     const form = new FormData(e.currentTarget);
-    const name = form.get("name");
-    const photo = form.get("photo");
-    const email = form.get("email");
+    const name = form.get("name")?.trim();
+    const photo = form.get("photo")?.trim();
+    const email = form.get("email")?.trim();
     const password = form.get("password");
     const termsChecked = form.get("terms");
 
@@ -39,7 +40,7 @@ const Register = () => {
     }
 
     // 🔹 Photo URL
-    const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))$/i;
+    const urlPattern = /^https?:\/\/.+/i;
     if (!urlPattern.test(photo)) {
       newErrors.photo = "Enter a valid image URL (jpg, png, etc.)";
     }
@@ -74,22 +75,40 @@ const Register = () => {
     // ✅ Clear errors
     setErrors({});
 
+    const getFirebaseError = (code) => {
+      switch (code) {
+        case "auth/email-already-in-use":
+          return "Email already in use";
+        case "auth/invalid-email":
+          return "Invalid email";
+        case "auth/weak-password":
+          return "Weak password";
+        default:
+          return "Registration failed";
+      }
+    };
     // create user with email and password using createUser function from auth context.
     createUser(email, password)
-      .then((result) => {
+      .then(async (result) => {
+        await updateProfile(result.user, {
+          displayName: name,
+          photoURL: photo,
+        });
+
         e.target.reset();
-        setErrors({});
         navigate("/");
       })
       .catch((error) => {
-        setErrors({ firebase: error.message });
+        setErrors({ auth: getFirebaseError(error.code) });
       });
+
+    // update profile
   };
 
   return (
     <div>
       <Navbar></Navbar>
-      <div className="w-3/5 p-16 m-auto mx-auto mt-6 mb-16 bg-gray-100 mx8-auto login-form">
+      <div className="w-3/5 p-16 mx-auto mt-6 mb-16 bg-gray-100 mx8-auto register-form">
         <h2 className="text-2xl font-bold text-center">
           Register your account
         </h2>
@@ -183,18 +202,14 @@ const Register = () => {
           {/* Checkbox */}
           <div className="flex items-center gap-2">
             <input type="checkbox" name="terms" id="terms" />
-            <label htmlFor="terms" className="text-sm">
-              Accept{" "}
-              <a
-                className="font-semibold link link-hover"
-                href="/terms-and-conditions"
-              >
-                terms and conditions
-              </a>
-              {errors.terms && (
-                <p className="text-sm text-red-500">{errors.terms}</p>
-              )}
-            </label>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" name="terms" id="terms" />
+              <label htmlFor="terms">Accept terms</label>
+            </div>
+
+            {errors.terms && (
+              <p className="text-sm text-red-500">{errors.terms}</p>
+            )}
           </div>
           {/* Register Button */}
           <button

@@ -5,6 +5,7 @@ import { AuthContext } from "../../providers/AuthProvider";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
 
 function Login() {
+  const [loading, setLoading] = useState(false);
   // state for holding email from input field using useRef
   const emailRef = useRef(null);
   // error state
@@ -30,7 +31,7 @@ function Login() {
     e.preventDefault();
     // different method rather then e.target.email.value etc
     const form = new FormData(e.currentTarget);
-    const email = form.get("email");
+    const email = form.get("email")?.trim();
     const password = form.get("password");
 
     const tempErrors = {};
@@ -46,14 +47,6 @@ function Login() {
       tempErrors.password = "Password is required";
     } else if (password.length < 6) {
       tempErrors.password = "Password must be at least 6 characters";
-    } else if (!/(?=.*[a-z])/.test(password)) {
-      tempErrors.password = "Must include a lowercase letter";
-    } else if (!/(?=.*[A-Z])/.test(password)) {
-      tempErrors.password = "Must include an uppercase letter";
-    } else if (!/(?=.*\d)/.test(password)) {
-      tempErrors.password = "Must include a number";
-    } else if (!/(?=.*[@$!%*?&])/.test(password)) {
-      tempErrors.password = "Must include a special character (@$!%*?&)";
     }
     // STOP IF ERRORS EXIST
 
@@ -64,34 +57,52 @@ function Login() {
 
     setErrors({}); // clear errors if validation passed
 
+    const getErrorMessage = (errorCode) => {
+      switch (errorCode) {
+        case "auth/user-not-found":
+          return "No account found with this email";
+        case "auth/wrong-password":
+          return "Incorrect password";
+        case "auth/invalid-credential":
+          return "Invalid login credentials";
+        default:
+          return "Login failed. Try again.";
+      }
+    };
+
+    setLoading(true);
     signInUser(email, password)
       .then((result) => {
-        e.target.reset(" ");
+        e.target.reset();
         const loggedUser = result.user;
         console.log(loggedUser.email, "login successful");
         // location
         navigate(location?.state ? location.state : "/");
       })
       .catch((error) => {
-        setErrors({ auth: error.message });
-      });
+        setErrors({ auth: getErrorMessage(error.code) });
+      })
+      .finally(() => setLoading(false));
   };
 
   // google sign in handler
   const handleGoogleSignIn = () => {
+    setLoading(true);
     googleSignIn()
       .then((result) => {
         const loggedUser = result.user;
         console.log(loggedUser.email, "google sign in successful");
-        navigate(location?.state ? location.state : "/");
+        navigate(location?.state?.from || "/");
       })
       .catch((error) => {
         console.log(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   // github sign in handler
   const handleGitHubSignIn = () => {
+    setLoading(true);
     githubSignIn()
       .then((result) => {
         const loggedUser = result.user;
@@ -100,7 +111,8 @@ function Login() {
       })
       .catch((error) => {
         console.log(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   // facebook sign in handler
@@ -112,17 +124,23 @@ function Login() {
 
         const user = result.user;
 
-        console.log(user.email, "facebook login successful");
+        console.log(user.email || "No email from Facebook");
         navigate(location?.state ? location.state : "/");
       })
       .catch((error) => {
-        console.log(error.message);
+        if (error.code === "auth/account-exists-with-different-credential") {
+          setErrors({
+            auth: "Account exists with another login method (Google/Github). Try that.",
+          });
+        } else {
+          setErrors({ auth: error.message });
+        }
       });
   };
 
   // handle password reset9430683452144
   const handlePasswordReset = () => {
-    const email = emailRef.current?.value;
+    const email = emailRef.current?.value?.trim();
 
     const tempErrors = {};
     if (!email) {
@@ -135,6 +153,7 @@ function Login() {
     resetPassword(email)
       .then(() => {
         setResetMsg("Password reset email sent. Please check your inbox.");
+        setTimeout(() => setResetMsg(""), 5000);
       })
       .catch((error) => {
         setErrors({ auth: error.message });
@@ -144,7 +163,7 @@ function Login() {
   return (
     <div>
       <Navbar></Navbar>
-      <div className="w-3/5 p-16 m-auto mb-16 bg-gray-100 mx-automt-6 mx8-auto login-form">
+      <div className="w-3/5 p-16 mx-auto mt-6 mb-16 bg-gray-100 login-form">
         <h2 className="text-2xl font-bold text-center">Login your account</h2>
         <hr className="w-2/5 mx-auto mt-2"></hr>
         <form
@@ -213,9 +232,10 @@ function Login() {
           {/* Submit Button */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 text-white transition bg-black rounded hover:bg-blue-600"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
