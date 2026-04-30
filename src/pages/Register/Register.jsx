@@ -201,10 +201,9 @@ const Register = () => {
 
           {/* Checkbox */}
           <div className="flex items-center gap-2">
-            <input type="checkbox" name="terms" id="terms" />
             <div className="flex items-center gap-2">
               <input type="checkbox" name="terms" id="terms" />
-              <label htmlFor="terms">Accept terms</label>
+              <label htmlFor="terms">Accept terms & conditions</label>
             </div>
 
             {errors.terms && (

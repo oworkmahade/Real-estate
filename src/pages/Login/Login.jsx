@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
+import { updateProfile } from "firebase/auth";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -118,24 +119,32 @@ function Login() {
   // facebook sign in handler
 
   const handleFacebookSignIn = () => {
-    facebookSignIn()
-      .then((result) => {
-        // The signed-in user info.
+    setLoading(true);
 
+    facebookSignIn()
+      .then(async (result) => {
         const user = result.user;
 
-        console.log(user.email || "No email from Facebook");
-        navigate(location?.state ? location.state : "/");
+        // Facebook access token (IMPORTANT)
+        const accessToken =
+          result._tokenResponse?.oauthAccessToken ||
+          result._tokenResponse?.accessToken;
+
+        if (accessToken) {
+          const photoURL = `https://graph.facebook.com/me/picture?type=large&access_token=${accessToken}`;
+          await updateProfile(user, {
+            photoURL,
+          });
+        }
+
+        console.log("Facebook login success:", user);
+
+        navigate(location?.state?.from || "/");
       })
       .catch((error) => {
-        if (error.code === "auth/account-exists-with-different-credential") {
-          setErrors({
-            auth: "Account exists with another login method (Google/Github). Try that.",
-          });
-        } else {
-          setErrors({ auth: error.message });
-        }
-      });
+        console.log(error.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   // handle password reset9430683452144
