@@ -5,7 +5,7 @@ import img4 from "../../assets/slider_images/image_4.jpg";
 
 function Banner() {
   return (
-    <div className="relative w-full h-[85vh]">
+    <div className="relative w-full h-[48vh]">
       {/* Carousel */}
       <div className="w-full h-full carousel">
         {[img1, img2, img3, img4].map((img, index) => (
