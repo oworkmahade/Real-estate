@@ -1,28 +1,22 @@
-import { useContext } from "react";
 import PropTypes from "prop-types";
-import { AuthContext } from "../providers/AuthProvider";
+import { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../providers/AuthProvider";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
-  //   location tracing
   const location = useLocation();
-  console.log(location.pathname);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-base-100">
-        {/* Spinner */}
-        <div className="w-12 h-12 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-
-        {/* Text */}
-        <p className="mt-4 text-sm tracking-wide text-gray-500">Loading...</p>
+      <div className="flex items-center justify-center h-screen">
+        <span className="text-green-600 loading loading-spinner"></span>
       </div>
     );
   }
 
   if (!user) {
-    return <Navigate state={location.pathname} to="/login"></Navigate>;
+    return <Navigate to="/login" state={{ from: location }} />;
   }
   return children;
 }
