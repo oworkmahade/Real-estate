@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../Shared/Navbar/Navbar";
 import { AuthContext } from "../../providers/AuthProvider";
 import { updateProfile } from "firebase/auth";
 import toast from "react-hot-toast";
-import { useLocation } from "react-router-dom";
+import PageTitle from "../Shared/PageTitle/PageTitle";
 
 const Register = () => {
   const authInfo = useContext(AuthContext);
@@ -111,12 +111,6 @@ const Register = () => {
     googleSignIn()
       .then(async (result) => {
         const user = result.user;
-
-        // force refresh photo from provider
-        // await updateProfile(user, {
-        //   photoURL: user.photoURL || user.providerData?.[0]?.photoURL,
-        // });
-
         toast.success(`Welcome, ${user?.displayName || "User"} 🏡`);
 
         navigate(location?.state?.from || "/");
@@ -128,6 +122,7 @@ const Register = () => {
 
   return (
     <div>
+      <PageTitle title="Register" />
       <Navbar></Navbar>
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
         {/* LEFT SIDE (Image Section) */}

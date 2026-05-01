@@ -18,6 +18,7 @@ import MyListings from "../pages/MyListings/MyListings";
 import Saved from "../pages/Saved/Saved";
 import Profile from "../pages/Profile/Profile";
 import PrivateRoute from "./PrivateRoute";
+import PropertyDetails from "../pages/Home/PropertyDetails";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,16 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home></Home>,
+        loader: () => fetch("/estates.json"),
+      },
+      {
+        path: "/property/:id",
+        element: (
+          <PrivateRoute>
+            <PropertyDetails></PropertyDetails>
+          </PrivateRoute>
+        ),
+        loader: () => fetch("/estates.json"),
       },
       {
         path: "/login",

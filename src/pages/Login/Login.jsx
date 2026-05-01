@@ -5,6 +5,7 @@ import { AuthContext } from "../../providers/AuthProvider";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
 import toast from "react-hot-toast";
+import PageTitle from "../Shared/PageTitle/PageTitle";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -172,7 +173,7 @@ function Login() {
   return (
     <div>
       <Navbar></Navbar>
-
+      <PageTitle title="Login" />
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
         {/* LEFT SIDE (Image Section) */}
         <div className="relative hidden md:block">

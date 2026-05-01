@@ -5,7 +5,7 @@ import img4 from "../../assets/slider_images/image_4.jpg";
 
 function Banner() {
   return (
-    <div className="relative w-full h-[48vh]">
+    <div className="relative w-full h-[48vh] overflow-hidden">
       {/* Carousel */}
       <div className="w-full h-full carousel">
         {[img1, img2, img3, img4].map((img, index) => (
@@ -14,40 +14,43 @@ function Banner() {
             id={`slide${index}`}
             className="relative w-full carousel-item"
           >
-            <img src={img} className="object-cover w-full h-full" />
+            <img src={img} className="object-cover w-full h-full scale-105" />
 
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/50"></div>
+            {/* Gradient Overlay (more modern than dark block) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
           </div>
         ))}
       </div>
 
-      {/* Content Overlay */}
+      {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
-        <h1 className="mb-4 text-3xl font-bold md:text-5xl">
-          Find Your Dream Home 🏡
+        {/* Title */}
+        <h1 className="text-3xl font-bold leading-tight md:text-5xl drop-shadow-lg">
+          Find Your Dream Home
         </h1>
 
-        <p className="max-w-xl mb-6 text-sm text-gray-200 md:text-lg">
-          Buy, sell, or rent properties easily. Discover the best homes in your
-          desired location.
+        {/* Subtitle */}
+        <p className="max-w-2xl mt-4 text-sm text-gray-200 md:text-lg">
+          Discover, buy, rent, or sell properties with ease. Explore premium
+          homes in the best locations of your city.
         </p>
 
-        <div className="w-full max-w-4xl mx-auto">
-          <div className="flex flex-col items-center overflow-hidden bg-white border rounded-full shadow-2xl md:flex-row">
+        {/* Search Card */}
+        <div className="w-full max-w-5xl mt-8">
+          <div className="flex flex-col items-center overflow-hidden border rounded-full shadow-2xl md:flex-row bg-white/90 backdrop-blur-xl border-white/30">
             {/* Location */}
-            <div className="flex items-center flex-1 gap-2 px-4 py-3 border-b md:border-b-0 md:border-r">
-              <span className="text-lg text-gray-500">📍</span>
+            <div className="flex items-center flex-1 gap-2 px-5 py-3 border-b md:border-b-0 md:border-r">
+              📍
               <input
                 type="text"
                 placeholder="Search location (Dhaka, Sherpur...)"
-                className="w-full text-gray-700 placeholder-gray-400 outline-none"
+                className="w-full text-gray-700 bg-transparent outline-none"
               />
             </div>
 
-            {/* Property Type */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b md:border-b-0 md:border-r">
-              <span className="text-lg text-gray-500">🏠</span>
+            {/* Type */}
+            <div className="flex items-center gap-2 px-5 py-3 border-b md:border-b-0 md:border-r">
+              🏠
               <select className="text-gray-700 bg-transparent outline-none">
                 <option>Buy</option>
                 <option>Rent</option>
@@ -55,9 +58,9 @@ function Banner() {
               </select>
             </div>
 
-            {/* Price Range (Optional but modern) */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b md:border-b-0 md:border-r">
-              <span className="text-lg text-gray-500">💰</span>
+            {/* Price */}
+            <div className="flex items-center gap-2 px-5 py-3 border-b md:border-b-0 md:border-r">
+              💰
               <select className="text-gray-700 bg-transparent outline-none">
                 <option>Price Range</option>
                 <option>1L - 5L</option>
@@ -66,32 +69,23 @@ function Banner() {
               </select>
             </div>
 
-            {/* Search Button */}
-            <button className="w-full px-6 py-3 m-2 font-medium text-white transition bg-green-600 rounded-full md:w-auto hover:bg-green-700">
+            {/* Button */}
+            <button className="px-8 py-3 m-2 text-sm font-semibold text-white transition rounded-full shadow-lg bg-gradient-to-r from-green-600 to-emerald-500 hover:opacity-90">
               🔍 Search
             </button>
           </div>
         </div>
       </div>
 
-      {/* Navigation Buttons */}
+      {/* Modern Dot Navigation */}
       <div className="absolute flex gap-2 transform -translate-x-1/2 bottom-6 left-1/2">
-        <a
-          href="#slide0"
-          className="w-3 h-3 bg-white rounded-full opacity-70 hover:opacity-100"
-        ></a>
-        <a
-          href="#slide1"
-          className="w-3 h-3 bg-white rounded-full opacity-70 hover:opacity-100"
-        ></a>
-        <a
-          href="#slide2"
-          className="w-3 h-3 bg-white rounded-full opacity-70 hover:opacity-100"
-        ></a>
-        <a
-          href="#slide3"
-          className="w-3 h-3 bg-white rounded-full opacity-70 hover:opacity-100"
-        ></a>
+        {[0, 1, 2, 3].map((i) => (
+          <a
+            key={i}
+            href={`#slide${i}`}
+            className="w-2.5 h-2.5 bg-white rounded-full opacity-60 hover:opacity-100 transition"
+          ></a>
+        ))}
       </div>
     </div>
   );

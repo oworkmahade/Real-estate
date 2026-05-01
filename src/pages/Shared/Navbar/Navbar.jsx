@@ -1,7 +1,8 @@
 import { NavLink, Link } from "react-router-dom";
-// import userLogo from "../../../assets/user.png";
+
 import { useContext } from "react";
 import { AuthContext } from "../../../providers/AuthProvider";
+import Logo from "../Logo/Logo";
 
 const Navbar = () => {
   const authInfo = useContext(AuthContext);
@@ -63,106 +64,108 @@ const Navbar = () => {
   );
 
   return (
-    <div className="sticky top-0 z-50 bg-white shadow-md">
-      <div className="px-4 mx-auto navbar max-w-7xl">
-        {/* LEFT: Logo */}
-        <div className="navbar-start">
-          {/* Mobile Menu */}
-          <div className="dropdown lg:hidden">
-            <label tabIndex={0} className="btn btn-ghost">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </label>
+    <div className="sticky top-0 z-50 border-b border-gray-200 backdrop-blur-xl bg-white/70">
+      <div className="px-4 mx-auto max-w-7xl">
+        <div className="flex items-center justify-between py-3">
+          {/* LEFT: Logo + Mobile */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu */}
+            <div className="dropdown lg:hidden">
+              <label tabIndex={0} className="btn btn-ghost btn-circle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {" "}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />{" "}
+                </svg>
+              </label>
 
-            <ul
-              tabIndex={0}
-              className="p-3 mt-3 space-y-2 bg-white rounded-lg shadow-lg menu menu-sm dropdown-content w-52"
+              <ul className="w-56 p-3 mt-3 space-y-2 bg-white shadow-xl rounded-xl menu menu-sm dropdown-content">
+                {navLink}
+              </ul>
+            </div>
+
+            {/* Logo */}
+            <Link
+              to="/"
+              className="text-2xl font-extrabold tracking-tight text-transparent bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text"
             >
+              <Logo />
+            </Link>
+          </div>
+
+          {/* CENTER: Navigation */}
+          <div className="hidden lg:flex">
+            <ul className="flex items-center gap-8 text-sm font-medium text-gray-600">
               {navLink}
             </ul>
           </div>
 
-          {/* Brand */}
-          <Link to="/" className="text-2xl font-bold text-green-600">
-            🏡 Home<span className="text-gray-800">Finder</span>
-          </Link>
-        </div>
+          {/* RIGHT: Auth */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <div className="dropdown dropdown-end">
+                {/* Avatar */}
+                <label tabIndex={0} className="cursor-pointer">
+                  <img
+                    src={user?.photoURL}
+                    alt="user"
+                    className="w-10 h-10 transition rounded-full shadow-md ring-2 ring-green-500 hover:scale-105"
+                  />
+                </label>
 
-        {/* CENTER: Navigation */}
-        <div className="hidden lg:flex navbar-center">
-          <ul className="gap-6 font-medium text-gray-700 menu menu-horizontal">
-            {navLink}
-          </ul>
-        </div>
+                {/* Dropdown */}
+                <ul className="p-4 mt-3 space-y-2 bg-white shadow-2xl w-60 rounded-2xl menu menu-sm dropdown-content">
+                  <li className="pointer-events-none">
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {user?.displayName || "User"}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                  </li>
 
-        {/* RIGHT: User / Auth */}
-        <div className="gap-4 navbar-end">
-          {user ? (
-            <div className="dropdown dropdown-end">
-              {/* Avatar Button */}
-              <label tabIndex={0} className="cursor-pointer">
-                <img
-                  key={user?.photoURL}
-                  src={user?.photoURL}
-                  className="w-10 h-10 border-2 border-green-500 rounded-full"
-                  alt="user"
-                />
-              </label>
+                  <div className="divider"></div>
 
-              {/* Dropdown Menu */}
-              <ul
-                tabIndex={0}
-                className="w-56 p-3 mt-3 space-y-1 bg-white rounded-lg shadow-lg menu menu-sm dropdown-content"
-              >
-                {/* User Info */}
-                <li className="pointer-events-none">
-                  <span className="font-semibold text-gray-800">
-                    {user?.displayName || "User"}
-                  </span>
-                  <span className="text-xs text-gray-500">{user?.email}</span>
-                </li>
+                  {userMenu}
 
-                <div className="my-1 divider"></div>
+                  <div className="divider"></div>
 
-                {/* User Menu */}
-                {userMenu}
-
-                <div className="my-1 divider"></div>
-
-                {/* Logout */}
-                <li>
-                  <button onClick={handleLogOut} className="text-red-500">
-                    Logout
+                  <li>
+                    <button
+                      onClick={handleLogOut}
+                      className="text-red-500 transition hover:text-red-600"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link to="/login">
+                  <button className="px-4 py-2 text-sm font-medium text-green-600 transition border border-green-500 rounded-full hover:bg-green-50">
+                    Login
                   </button>
-                </li>
-              </ul>
-            </div>
-          ) : (
-            <div className="flex gap-3">
-              <Link to="/login">
-                <button className="px-4 py-2 text-green-600 border border-green-600 rounded-lg">
-                  Login
-                </button>
-              </Link>
-              <Link to="/register">
-                <button className="px-4 py-2 text-white bg-green-600 rounded-lg">
-                  Register
-                </button>
-              </Link>
-            </div>
-          )}
+                </Link>
+
+                <Link to="/register">
+                  <button className="px-4 py-2 text-sm font-medium text-white transition rounded-full shadow-md bg-gradient-to-r from-green-600 to-emerald-500 hover:opacity-90">
+                    Register
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
