@@ -5,6 +5,20 @@ import ErrorPage from "../pages/ErrorPage/ErrorPage";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 
+// New Pages (create these)
+import Properties from "../pages/Properties/Properties";
+import Buy from "../pages/Buy/Buy";
+import Rent from "../pages/Rent/Rent";
+import Agents from "../pages/Agents/Agents";
+import About from "../pages/About/About";
+
+// User Pages
+import Dashboard from "../pages/Dashboard/Dashboard";
+import MyListings from "../pages/MyListings/MyListings";
+import Saved from "../pages/Saved/Saved";
+import Profile from "../pages/Profile/Profile";
+import PrivateRoute from "./PrivateRoute";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -22,6 +36,58 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register></Register>,
+      },
+      {
+        path: "/properties",
+        element: <Properties />,
+      },
+      {
+        path: "/buy",
+        element: <Buy />,
+      },
+      {
+        path: "/rent",
+        element: <Rent />,
+      },
+      {
+        path: "/agents",
+        element: <Agents />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
+      {
+        path: "/dashboard",
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/my-listings",
+        element: (
+          <PrivateRoute>
+            <MyListings />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/saved",
+        element: (
+          <PrivateRoute>
+            <Saved />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
       },
     ],
   },

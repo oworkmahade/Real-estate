@@ -52,23 +52,34 @@ function AuthProvider({ children }) {
     setLoading(true);
     return signOut(auth);
   };
-  // setting an observer, getting currently signed-in user and putting into user state
 
+  // setting an observer, getting currently signed-in user and putting into user state
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      console.log(
-        "Observing current user inside useEffect of AuthProvider",
-        currentUser,
-      );
-      setLoading(false); // ✅ very important
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        // 🔥 force reload user (IMPORTANT for Google photo)
+        await currentUser.reload();
+
+        const updatedUser = auth.currentUser;
+
+        setUser({
+          uid: updatedUser.uid,
+          email: updatedUser.email,
+          displayName: updatedUser.displayName,
+          photoURL:
+            updatedUser.photoURL ||
+            updatedUser.providerData?.[0]?.photoURL ||
+            "https://i.ibb.co/4pDNDk1/avatar.png",
+        });
+      } else {
+        setUser(null);
+      }
+
+      setLoading(false);
     });
 
-    return () => {
-      unSubscribe();
-    };
+    return () => unSubscribe();
   }, []);
-
   // google sign in
   const googleProvider = new GoogleAuthProvider();
   const googleSignIn = () => {

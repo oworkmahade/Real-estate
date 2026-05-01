@@ -1,17 +1,20 @@
 import { useContext, useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Shared/Navbar/Navbar";
 import { AuthContext } from "../../providers/AuthProvider";
 import { updateProfile } from "firebase/auth";
+import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 const Register = () => {
   const authInfo = useContext(AuthContext);
-  const { createUser } = authInfo;
+  const { createUser, googleSignIn } = authInfo;
 
   // navigation
   const navigate = useNavigate();
-
+  // location
+  const location = useLocation();
   // state or showing password
   const [showPassword, setShowPassword] = useState(null);
 
@@ -94,147 +97,202 @@ const Register = () => {
           displayName: name,
           photoURL: photo,
         });
-
+        toast.success("Registration completed successfully 🎉");
         e.target.reset();
         navigate("/");
       })
       .catch((error) => {
         setErrors({ auth: getFirebaseError(error.code) });
       });
+  };
 
-    // update profile
+  // handle google Sign In
+  const handleGoogleRegister = () => {
+    googleSignIn()
+      .then(async (result) => {
+        const user = result.user;
+
+        // force refresh photo from provider
+        // await updateProfile(user, {
+        //   photoURL: user.photoURL || user.providerData?.[0]?.photoURL,
+        // });
+
+        toast.success(`Welcome, ${user?.displayName || "User"} 🏡`);
+
+        navigate(location?.state?.from || "/");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
   };
 
   return (
     <div>
       <Navbar></Navbar>
-      <div className="w-3/5 p-16 mx-auto mt-6 mb-16 bg-gray-100 mx8-auto register-form">
-        <h2 className="text-2xl font-bold text-center">
-          Register your account
-        </h2>
-        <hr className="w-2/5 mx-auto mt-2"></hr>
-        <form
-          onSubmit={handleRegister}
-          className="w-4/6 p-8 mx-auto mt-6 space-y-4 border-2 rounded-lg border-slate-400"
-        >
-          {/* Name */}
-          <div className="text-sm font-medium">
-            <label htmlFor="name" className="block mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Enter your name"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name}</p>
-            )}
+      <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+        {/* LEFT SIDE (Image Section) */}
+        <div className="relative hidden md:block">
+          <img
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+            alt="Real Estate"
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-white bg-black/50">
+            <h1 className="mb-4 text-4xl font-bold">Join HomeFinder</h1>
+            <p className="max-w-md text-lg text-center">
+              Create your account and start exploring your dream properties
+              today.
+            </p>
           </div>
+        </div>
 
-          {/* Photo URL */}
-          <div className="text-sm font-medium">
-            <label htmlFor="photo" className="block mb-1">
-              Photo URL
-            </label>
-            <input
-              type="text"
-              name="photo"
-              id="photo"
-              placeholder="Enter your photo URL"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            {errors.photo && (
-              <p className="text-sm text-red-500">{errors.photo}</p>
-            )}
-          </div>
+        {/* RIGHT SIDE (Form Section) */}
+        <div className="flex items-center justify-center px-4 py-10 bg-gray-100">
+          <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-center text-gray-800">
+              Create Account
+            </h2>
+            <p className="mb-6 text-center text-gray-500">
+              Sign up to get started
+            </p>
 
-          {/* Email */}
-          <div className="text-sm font-medium">
-            <label htmlFor="email" className="block mb-1">
-              Email address
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter your email address"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email}</p>
-            )}
-          </div>
+            {/* Form */}
+            <form onSubmit={handleRegister} className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Mahade Hasan"
+                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-500">{errors.name}</p>
+                )}
+              </div>
 
-          {/* Password */}
-          <div className="text-sm font-medium">
-            <label htmlFor="password" className="block mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                id="password"
-                placeholder="Enter your password"
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
+              {/* Photo URL */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Photo URL
+                </label>
+                <input
+                  type="text"
+                  name="photo"
+                  placeholder="https://your-photo-url.com"
+                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                {errors.photo && (
+                  <p className="text-sm text-red-500">{errors.photo}</p>
+                )}
+              </div>
 
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute p-2 text-xl text-gray-600 border-none cursor-pointer right-3 top-1 bg-none"
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
+              {/* Email */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="example@email.com"
+                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="••••••••"
+                    className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute text-gray-500 right-3 top-3"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
+              {/* Terms */}
+              <div className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="terms" id="terms" />
+                <label htmlFor="terms" className="text-gray-600">
+                  I agree to the terms & conditions
+                </label>
+              </div>
+              {errors.terms && (
+                <p className="text-sm text-red-500">{errors.terms}</p>
               )}
-            </div>
-          </div>
 
-          {/* Checkbox */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" name="terms" id="terms" />
-              <label htmlFor="terms">Accept terms & conditions</label>
-            </div>
-
-            {errors.terms && (
-              <p className="text-sm text-red-500">{errors.terms}</p>
-            )}
-          </div>
-          {/* Register Button */}
-          <button
-            type="submit"
-            className="w-full py-2 text-white transition bg-blue-500 rounded hover:bg-blue-600"
-          >
-            Register
-          </button>
-
-          {errors.firebase && (
-            <p className="text-center text-red-600">{errors.firebase}</p>
-          )}
-        </form>
-
-        {/* Login Link */}
-        <p className="mt-4 text-sm text-center">
-          Already have an account.{" "}
-          <span className="text-blue-500 cursor-pointer hover:underline">
-            <Link to="/login">
-              <button type="button" className="text-red-600">
-                {" "}
-                Login
+              {/* Button */}
+              <button
+                type="submit"
+                className="w-full py-3 font-semibold text-white transition bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Create Account
               </button>
-            </Link>
-          </span>
-        </p>
+
+              {/* Firebase Error */}
+              {errors.firebase && (
+                <p className="text-sm text-center text-red-500">
+                  {errors.firebase}
+                </p>
+              )}
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="flex-1 h-[1px] bg-gray-300"></div>
+              <p className="text-sm text-gray-400">OR</p>
+              <div className="flex-1 h-[1px] bg-gray-300"></div>
+            </div>
+
+            {/* Social Login (optional reuse) */}
+            <div className="space-y-3">
+              <button
+                onClick={handleGoogleRegister}
+                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+              >
+                <FaGoogle /> Continue with Google
+              </button>
+            </div>
+
+            {/* Login Link */}
+            <p className="mt-6 text-sm text-center">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-green-600 hover:underline"
+              >
+                Login
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

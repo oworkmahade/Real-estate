@@ -4,6 +4,7 @@ import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
+import toast from "react-hot-toast";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -76,7 +77,7 @@ function Login() {
       .then((result) => {
         e.target.reset();
         const loggedUser = result.user;
-        console.log(loggedUser.email, "login successful");
+        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
         // location
         navigate(location?.state ? location.state : "/");
       })
@@ -89,10 +90,11 @@ function Login() {
   // google sign in handler
   const handleGoogleSignIn = () => {
     setLoading(true);
+
     googleSignIn()
       .then((result) => {
         const loggedUser = result.user;
-        console.log(loggedUser.email, "google sign in successful");
+        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
         navigate(location?.state?.from || "/");
       })
       .catch((error) => {
@@ -107,7 +109,7 @@ function Login() {
     githubSignIn()
       .then((result) => {
         const loggedUser = result.user;
-        console.log(loggedUser.email, "github sign in successful");
+        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
         navigate(location?.state ? location.state : "/");
       })
       .catch((error) => {
@@ -136,8 +138,6 @@ function Login() {
             photoURL,
           });
         }
-
-        console.log("Facebook login success:", user);
 
         navigate(location?.state?.from || "/");
       })
@@ -172,124 +172,143 @@ function Login() {
   return (
     <div>
       <Navbar></Navbar>
-      <div className="w-3/5 p-16 mx-auto mt-6 mb-16 bg-gray-100 login-form">
-        <h2 className="text-2xl font-bold text-center">Login your account</h2>
-        <hr className="w-2/5 mx-auto mt-2"></hr>
-        <form
-          onSubmit={handleLogin}
-          className="w-4/6 p-8 mx-auto mt-6 space-y-4 border-2 rounded-lg border-slate-400"
-        >
-          {/* Email */}
-          <div className="text-sm font-medium">
-            <label htmlFor="email" className="block mb-1">
-              Email address
-            </label>
-            <input
-              type="email"
-              name="email"
-              ref={emailRef}
-              id="email"
-              placeholder="Enter your email address"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            <span>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-              )}
-            </span>
+
+      <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+        {/* LEFT SIDE (Image Section) */}
+        <div className="relative hidden md:block">
+          <img
+            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa"
+            alt="Real Estate"
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-white bg-black/50">
+            <h1 className="mb-4 text-4xl font-bold">Find Your Dream Home</h1>
+            <p className="max-w-md text-lg text-center">
+              Explore the best properties with us. Buy, sell, and rent with
+              confidence.
+            </p>
           </div>
+        </div>
 
-          {/* Password */}
-          <div className="text-sm font-medium">
-            <label htmlFor="password" className="block mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter your password"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            <span>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-              )}
-            </span>
-          </div>
+        {/* RIGHT SIDE (Form Section) */}
+        <div className="flex items-center justify-center px-4 py-10 bg-gray-100">
+          <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-xl">
+            {/* Logo / Title */}
+            <h2 className="text-2xl font-bold text-center text-gray-800">
+              Welcome Back
+            </h2>
+            <p className="mb-6 text-center text-gray-500">
+              Login to your real estate account
+            </p>
 
-          {/* password reset */}
-          <div className="my-4 text-sm font-medium">
-            <button
-              type="button"
-              onClick={handlePasswordReset}
-              className="p-0 m-0 bg-transparent border-none cursor-pointer link link-hover"
-              style={{ background: "none", border: "none" }}
-            >
-              Forgot password?
-            </button>
+            {/* Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              {/* Email */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  ref={emailRef}
+                  placeholder="Enter your email"
+                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
 
-            <span>
-              {resetMsg && (
-                <p className="text-sm text-center text-green-600">{resetMsg}</p>
-              )}
-            </span>
-          </div>
+              {/* Password */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 text-white transition bg-black rounded hover:bg-blue-600"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+              {/* Forgot Password */}
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  className="text-green-600 hover:underline"
+                >
+                  Forgot password?
+                </button>
 
-        {/* Login Link */}
-        <p className="mt-4 text-sm text-center">
-          Register if you don't have an account.{" "}
-          <span className="text-blue-500 cursor-pointer hover:underline">
-            <Link to="/register">
-              <button type="button" className="text-red-600">
-                {" "}
-                Register
+                {resetMsg && <span className="text-green-600">{resetMsg}</span>}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 font-semibold text-white transition bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                {loading ? "Logging in..." : "Login"}
               </button>
-            </Link>
-          </span>
-        </p>
-        <span>
-          {errors.auth && (
-            <p className="text-sm text-center text-red-600">{errors.auth}</p>
-          )}
-        </span>
 
-        {/* login with  */}
-        <div className="w-2/4 mx-auto mt-4 login-with">
-          <div className="flex flex-col items-start justify-center gap-4">
-            <button
-              onClick={handleGoogleSignIn}
-              className="w-full text-blue-600 border-2 border-blue-600 btn"
-            >
-              <FaGoogle />
-              Login with Google
-            </button>
-            <button
-              onClick={handleGitHubSignIn}
-              className="w-full border-2 border-black btn"
-            >
-              <FaGithub />
-              Login with Github
-            </button>
-            <button
-              onClick={handleFacebookSignIn}
-              className="w-full text-blue-600 border-2 border-blue-600 btn"
-            >
-              <FaFacebook />
-              Login with Facebook
-            </button>
+              {/* Error */}
+              {errors.auth && (
+                <p className="text-sm text-center text-red-500">
+                  {errors.auth}
+                </p>
+              )}
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="flex-1 h-[1px] bg-gray-300"></div>
+              <p className="text-sm text-gray-400">OR</p>
+              <div className="flex-1 h-[1px] bg-gray-300"></div>
+            </div>
+
+            {/* Social Login */}
+            <div className="space-y-3">
+              <button
+                onClick={handleGoogleSignIn}
+                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+              >
+                <FaGoogle /> Continue with Google
+              </button>
+
+              <button
+                onClick={handleGitHubSignIn}
+                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+              >
+                <FaGithub /> Continue with GitHub
+              </button>
+
+              <button
+                onClick={handleFacebookSignIn}
+                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+              >
+                <FaFacebook /> Continue with Facebook
+              </button>
+            </div>
+
+            {/* Register */}
+            <p className="mt-6 text-sm text-center">
+              Don’t have an account?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-green-600 hover:underline"
+              >
+                Register
+              </Link>
+            </p>
           </div>
         </div>
       </div>
