@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../Shared/Navbar/Navbar";
@@ -8,281 +9,161 @@ import toast from "react-hot-toast";
 import PageTitle from "../Shared/PageTitle/PageTitle";
 
 const Register = () => {
-  const authInfo = useContext(AuthContext);
-  const { createUser, googleSignIn } = authInfo;
+  const { createUser, googleSignIn } = useContext(AuthContext);
 
-  // navigation
   const navigate = useNavigate();
-  // location
   const location = useLocation();
-  // state or showing password
-  const [showPassword, setShowPassword] = useState(null);
 
-  // error state
-  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  // form handle register
-  const handleRegister = (e) => {
-    e.preventDefault();
+  // React Hook Form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-    // different method rather then e.target.email.value etc
+  // Submit handler
+  const onSubmit = (data) => {
+    const { name, photo, email, password } = data;
 
-    const form = new FormData(e.currentTarget);
-    const name = form.get("name")?.trim();
-    const photo = form.get("photo")?.trim();
-    const email = form.get("email")?.trim();
-    const password = form.get("password");
-    const termsChecked = form.get("terms");
-
-    // validation
-    const newErrors = {};
-
-    // 🔹 Name
-    if (!name || name.trim().length < 3) {
-      newErrors.name = "Name must be at least 3 characters";
-    }
-
-    // 🔹 Photo URL
-    const urlPattern = /^https?:\/\/.+/i;
-    if (!urlPattern.test(photo)) {
-      newErrors.photo = "Enter a valid image URL (jpg, png, etc.)";
-    }
-
-    // 🔹 Email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      newErrors.email = "Enter a valid email address";
-    }
-
-    // 🔹 Password
-    if (password.length < 6) {
-      newErrors.password = "At least 6 characters required";
-    } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = "Must include an uppercase letter";
-    } else if (!/[a-z]/.test(password)) {
-      newErrors.password = "Must include a lowercase letter";
-    } else if (!/[0-9]/.test(password)) {
-      newErrors.password = "Must include a number";
-    }
-
-    // 🔹 Terms
-    if (!termsChecked) {
-      newErrors.terms = "You must accept the terms";
-    }
-
-    // ❌ If errors exist → stop
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    // ✅ Clear errors
-    setErrors({});
-
-    const getFirebaseError = (code) => {
-      switch (code) {
-        case "auth/email-already-in-use":
-          return "Email already in use";
-        case "auth/invalid-email":
-          return "Invalid email";
-        case "auth/weak-password":
-          return "Weak password";
-        default:
-          return "Registration failed";
-      }
-    };
-    // create user with email and password using createUser function from auth context.
     createUser(email, password)
       .then(async (result) => {
         await updateProfile(result.user, {
           displayName: name,
           photoURL: photo,
         });
+
         toast.success("Registration completed successfully 🎉");
-        e.target.reset();
         navigate("/");
-      })
-      .catch((error) => {
-        setErrors({ auth: getFirebaseError(error.code) });
-      });
-  };
-
-  // handle google Sign In
-  const handleGoogleRegister = () => {
-    googleSignIn()
-      .then(async (result) => {
-        const user = result.user;
-        toast.success(`Welcome, ${user?.displayName || "User"} 🏡`);
-
-        navigate(location?.state?.from || "/");
       })
       .catch((error) => {
         toast.error(error.message);
       });
   };
 
+  // Google login
+  const handleGoogleRegister = () => {
+    googleSignIn()
+      .then((result) => {
+        toast.success(`Welcome, ${result.user?.displayName || "User"} 🏡`);
+        navigate(location?.state?.from || "/");
+      })
+      .catch((error) => toast.error(error.message));
+  };
+
   return (
     <div>
       <PageTitle title="Register" />
-      <Navbar></Navbar>
+      <Navbar />
+
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-        {/* LEFT SIDE (Image Section) */}
+        {/* LEFT IMAGE */}
         <div className="relative hidden md:block">
           <img
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
-            alt="Real Estate"
             className="object-cover w-full h-full"
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-white bg-black/50">
-            <h1 className="mb-4 text-4xl font-bold">Join HomeFinder</h1>
-            <p className="max-w-md text-lg text-center">
-              Create your account and start exploring your dream properties
-              today.
-            </p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/50">
+            <h1 className="text-4xl font-bold">Join HomeFinder</h1>
           </div>
         </div>
 
-        {/* RIGHT SIDE (Form Section) */}
-        <div className="flex items-center justify-center px-4 py-10 bg-gray-100">
+        {/* FORM */}
+        <div className="flex items-center justify-center p-6 bg-gray-100">
           <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-center text-gray-800">
-              Create Account
-            </h2>
-            <p className="mb-6 text-center text-gray-500">
-              Sign up to get started
-            </p>
+            <h2 className="text-2xl font-bold text-center">Create Account</h2>
 
-            {/* Form */}
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
               {/* Name */}
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Mahade Hasan"
-                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-                {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name}</p>
-                )}
-              </div>
+              <input
+                {...register("name", {
+                  required: "Name is required",
+                  minLength: { value: 3, message: "Minimum 3 characters" },
+                })}
+                placeholder="Full Name"
+                className="w-full p-3 border rounded-lg"
+              />
+              <p className="text-sm text-red-500">{errors.name?.message}</p>
 
-              {/* Photo URL */}
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Photo URL
-                </label>
-                <input
-                  type="text"
-                  name="photo"
-                  placeholder="https://your-photo-url.com"
-                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-                {errors.photo && (
-                  <p className="text-sm text-red-500">{errors.photo}</p>
-                )}
-              </div>
+              {/* Photo */}
+              <input
+                {...register("photo", {
+                  required: "Photo URL required",
+                })}
+                placeholder="Photo URL"
+                className="w-full p-3 border rounded-lg"
+              />
+              <p className="text-sm text-red-500">{errors.photo?.message}</p>
 
               {/* Email */}
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="example@email.com"
-                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
+              <input
+                {...register("email", {
+                  required: "Email required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email",
+                  },
+                })}
+                placeholder="Email"
+                className="w-full p-3 border rounded-lg"
+              />
+              <p className="text-sm text-red-500">{errors.email?.message}</p>
 
               {/* Password */}
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="••••••••"
-                    className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password", {
+                    required: "Password required",
+                    minLength: {
+                      value: 6,
+                      message: "Min 6 characters",
+                    },
+                  })}
+                  placeholder="Password"
+                  className="w-full p-3 border rounded-lg"
+                />
 
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute text-gray-500 right-3 top-3"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password}</p>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
               </div>
+              <p className="text-sm text-red-500">{errors.password?.message}</p>
 
               {/* Terms */}
-              <div className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="terms" id="terms" />
-                <label htmlFor="terms" className="text-gray-600">
-                  I agree to the terms & conditions
-                </label>
-              </div>
-              {errors.terms && (
-                <p className="text-sm text-red-500">{errors.terms}</p>
-              )}
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  {...register("terms", {
+                    required: "You must accept terms",
+                  })}
+                />
+                I agree to terms
+              </label>
+              <p className="text-sm text-red-500">{errors.terms?.message}</p>
 
-              {/* Button */}
-              <button
-                type="submit"
-                className="w-full py-3 font-semibold text-white transition bg-green-600 rounded-lg hover:bg-green-700"
-              >
+              {/* Submit */}
+              <button className="w-full py-3 text-white bg-green-600 rounded-lg">
                 Create Account
               </button>
-
-              {/* Firebase Error */}
-              {errors.firebase && (
-                <p className="text-sm text-center text-red-500">
-                  {errors.firebase}
-                </p>
-              )}
             </form>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-[1px] bg-gray-300"></div>
-              <p className="text-sm text-gray-400">OR</p>
-              <div className="flex-1 h-[1px] bg-gray-300"></div>
-            </div>
+            {/* Google */}
+            <button
+              onClick={handleGoogleRegister}
+              className="flex items-center justify-center w-full gap-2 py-2 mt-4 border rounded-lg"
+            >
+              <FaGoogle /> Continue with Google
+            </button>
 
-            {/* Social Login (optional reuse) */}
-            <div className="space-y-3">
-              <button
-                onClick={handleGoogleRegister}
-                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
-              >
-                <FaGoogle /> Continue with Google
-              </button>
-            </div>
-
-            {/* Login Link */}
-            <p className="mt-6 text-sm text-center">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="font-medium text-green-600 hover:underline"
-              >
+            <p className="mt-4 text-sm text-center">
+              Already have account?{" "}
+              <Link to="/login" className="text-green-600">
                 Login
               </Link>
             </p>

@@ -1,250 +1,172 @@
 import Navbar from "../Shared/Navbar/Navbar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
 import toast from "react-hot-toast";
 import PageTitle from "../Shared/PageTitle/PageTitle";
+import { useForm } from "react-hook-form";
 
 function Login() {
   const [loading, setLoading] = useState(false);
-  // state for holding email from input field using useRef
-  const emailRef = useRef(null);
-  // error state
-  const [errors, setErrors] = useState({});
   const [resetMsg, setResetMsg] = useState("");
 
-  // location
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const location = useLocation();
-  // receiving signInUser
-  const authInfo = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const {
     signInUser,
     resetPassword,
     googleSignIn,
     githubSignIn,
     facebookSignIn,
-  } = authInfo;
+  } = useContext(AuthContext);
 
-  const navigate = useNavigate();
-
-  // form handle login
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // different method rather then e.target.email.value etc
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email")?.trim();
-    const password = form.get("password");
-
-    const tempErrors = {};
-    // EMAIL VALIDATION
-    if (!email) {
-      tempErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      tempErrors.email = "Enter a valid email address";
-    }
-
-    // PASSWORD VALIDATION
-    if (!password) {
-      tempErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      tempErrors.password = "Password must be at least 6 characters";
-    }
-    // STOP IF ERRORS EXIST
-
-    if (Object.keys(tempErrors).length > 0) {
-      setErrors(tempErrors);
-      return;
-    }
-
-    setErrors({}); // clear errors if validation passed
-
-    const getErrorMessage = (errorCode) => {
-      switch (errorCode) {
-        case "auth/user-not-found":
-          return "No account found with this email";
-        case "auth/wrong-password":
-          return "Incorrect password";
-        case "auth/invalid-credential":
-          return "Invalid login credentials";
-        default:
-          return "Login failed. Try again.";
-      }
-    };
+  // 🔹 LOGIN
+  const onSubmit = (data) => {
+    const { email, password } = data;
 
     setLoading(true);
+
     signInUser(email, password)
       .then((result) => {
-        e.target.reset();
-        const loggedUser = result.user;
-        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
-        // location
-        navigate(location?.state ? location.state : "/");
-      })
-      .catch((error) => {
-        setErrors({ auth: getErrorMessage(error.code) });
-      })
-      .finally(() => setLoading(false));
-  };
-
-  // google sign in handler
-  const handleGoogleSignIn = () => {
-    setLoading(true);
-
-    googleSignIn()
-      .then((result) => {
-        const loggedUser = result.user;
-        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
+        toast.success(`Welcome back, ${result.user?.displayName || "User"} 🏡`);
         navigate(location?.state?.from || "/");
       })
       .catch((error) => {
-        console.log(error.message);
+        toast.error(error.message);
       })
       .finally(() => setLoading(false));
   };
 
-  // github sign in handler
+  // 🔹 SOCIAL LOGIN (same as yours)
+  const handleGoogleSignIn = () => {
+    setLoading(true);
+    googleSignIn()
+      .then((result) => {
+        toast.success(`Welcome back, ${result.user?.displayName || "User"} 🏡`);
+        navigate(location?.state?.from || "/");
+      })
+      .finally(() => setLoading(false));
+  };
+
   const handleGitHubSignIn = () => {
     setLoading(true);
     githubSignIn()
       .then((result) => {
-        const loggedUser = result.user;
-        toast.success(`Welcome back, ${loggedUser?.displayName || "User"} 🏡`);
-        navigate(location?.state ? location.state : "/");
-      })
-      .catch((error) => {
-        console.log(error.message);
+        toast.success(`Welcome back, ${result.user?.displayName || "User"} 🏡`);
+        navigate(location?.state?.from || "/");
       })
       .finally(() => setLoading(false));
   };
 
-  // facebook sign in handler
-
   const handleFacebookSignIn = () => {
     setLoading(true);
-
     facebookSignIn()
       .then(async (result) => {
         const user = result.user;
 
-        // Facebook access token (IMPORTANT)
-        const accessToken =
+        const token =
           result._tokenResponse?.oauthAccessToken ||
           result._tokenResponse?.accessToken;
 
-        if (accessToken) {
-          const photoURL = `https://graph.facebook.com/me/picture?type=large&access_token=${accessToken}`;
+        if (token) {
           await updateProfile(user, {
-            photoURL,
+            photoURL: `https://graph.facebook.com/me/picture?type=large&access_token=${token}`,
           });
         }
 
         navigate(location?.state?.from || "/");
       })
-      .catch((error) => {
-        console.log(error.message);
-      })
       .finally(() => setLoading(false));
   };
 
-  // handle password reset9430683452144
+  // 🔹 PASSWORD RESET
   const handlePasswordReset = () => {
-    const email = emailRef.current?.value?.trim();
+    const email = document.querySelector("input[name='email']").value;
 
-    const tempErrors = {};
     if (!email) {
-      tempErrors.email = "Email is required for password reset";
-      setErrors(tempErrors);
+      toast.error("Enter email first");
       return;
     }
-    setErrors({}); // clear errors if email is provided
 
     resetPassword(email)
       .then(() => {
-        setResetMsg("Password reset email sent. Please check your inbox.");
-        setTimeout(() => setResetMsg(""), 5000);
+        setResetMsg("Reset email sent ✔");
+        setTimeout(() => setResetMsg(""), 4000);
       })
-      .catch((error) => {
-        setErrors({ auth: error.message });
-      });
+      .catch((err) => toast.error(err.message));
   };
 
   return (
     <div>
-      <Navbar></Navbar>
+      <Navbar />
       <PageTitle title="Login" />
+
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-        {/* LEFT SIDE (Image Section) */}
+        {/* LEFT */}
         <div className="relative hidden md:block">
           <img
             src="https://images.unsplash.com/photo-1560518883-ce09059eeffa"
-            alt="Real Estate"
             className="object-cover w-full h-full"
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-white bg-black/50">
-            <h1 className="mb-4 text-4xl font-bold">Find Your Dream Home</h1>
-            <p className="max-w-md text-lg text-center">
-              Explore the best properties with us. Buy, sell, and rent with
-              confidence.
-            </p>
-          </div>
         </div>
 
-        {/* RIGHT SIDE (Form Section) */}
+        {/* RIGHT */}
         <div className="flex items-center justify-center px-4 py-10 bg-gray-100">
           <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-xl">
-            {/* Logo / Title */}
-            <h2 className="text-2xl font-bold text-center text-gray-800">
-              Welcome Back
-            </h2>
-            <p className="mb-6 text-center text-gray-500">
-              Login to your real estate account
-            </p>
+            <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
 
-            {/* Form */}
-            <form onSubmit={handleLogin} className="space-y-4">
-              {/* Email */}
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+              {/* EMAIL */}
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
                 <input
                   type="email"
-                  name="email"
-                  ref={emailRef}
-                  placeholder="Enter your email"
-                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
+                  placeholder="Email"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email",
+                    },
+                  })}
+                  className="w-full p-3 border rounded-lg"
                 />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
+                <p className="text-sm text-red-500">{errors.email?.message}</p>
               </div>
 
-              {/* Password */}
+              {/* PASSWORD */}
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
                 <input
                   type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  className="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
+                  placeholder="Password"
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Minimum 6 characters required",
+                    },
+                  })}
+                  className="w-full p-3 border rounded-lg"
                 />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-                )}
+                <p className="text-sm text-red-500">
+                  {errors.password?.message}
+                </p>
               </div>
 
-              {/* Forgot Password */}
-              <div className="flex items-center justify-between text-sm">
+              {/* RESET */}
+              <div className="flex justify-between text-sm">
                 <button
                   type="button"
                   onClick={handlePasswordReset}
-                  className="text-green-600 hover:underline"
+                  className="text-green-600"
                 >
                   Forgot password?
                 </button>
@@ -252,61 +174,49 @@ function Login() {
                 {resetMsg && <span className="text-green-600">{resetMsg}</span>}
               </div>
 
-              {/* Submit */}
+              {/* SUBMIT */}
               <button
-                type="submit"
                 disabled={loading}
-                className="w-full py-3 font-semibold text-white transition bg-green-600 rounded-lg hover:bg-green-700"
+                className="w-full py-3 text-white bg-green-600 rounded-lg"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
-
-              {/* Error */}
-              {errors.auth && (
-                <p className="text-sm text-center text-red-500">
-                  {errors.auth}
-                </p>
-              )}
             </form>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-[1px] bg-gray-300"></div>
-              <p className="text-sm text-gray-400">OR</p>
-              <div className="flex-1 h-[1px] bg-gray-300"></div>
-            </div>
-
-            {/* Social Login */}
-            <div className="space-y-3">
+            {/* SOCIAL LOGIN */}
+            <div className="mt-6 space-y-3">
+              {/* Google */}
               <button
                 onClick={handleGoogleSignIn}
-                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-center w-full gap-3 px-4 py-2 font-medium text-gray-700 transition-all duration-300 bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md hover:-translate-y-0.5 hover:border-green-400"
               >
-                <FaGoogle /> Continue with Google
+                <FaGoogle className="text-lg text-red-500" />
+                Continue with Google
               </button>
 
+              {/* GitHub */}
               <button
                 onClick={handleGitHubSignIn}
-                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-center w-full gap-3 px-4 py-2 font-medium text-white transition-all duration-300 bg-gray-900 border border-gray-800 shadow-sm rounded-xl hover:bg-black hover:shadow-md hover:-translate-y-0.5"
               >
-                <FaGithub /> Continue with GitHub
+                <FaGithub className="text-lg" />
+                Continue with GitHub
               </button>
 
+              {/* Facebook */}
               <button
                 onClick={handleFacebookSignIn}
-                className="flex items-center justify-center w-full gap-2 py-2 border rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-center w-full gap-3 px-4 py-2 font-medium text-white transition-all duration-300 bg-blue-600 border border-blue-700 shadow-sm rounded-xl hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5"
               >
-                <FaFacebook /> Continue with Facebook
+                <FaFacebook className="text-lg" />
+                Continue with Facebook
               </button>
             </div>
 
-            {/* Register */}
-            <p className="mt-6 text-sm text-center">
-              Don’t have an account?{" "}
-              <Link
-                to="/register"
-                className="font-medium text-green-600 hover:underline"
-              >
+            {/* REGISTER */}
+            <p className="mt-4 text-sm text-center">
+              No account?{" "}
+              <Link to="/register" className="text-green-600">
                 Register
               </Link>
             </p>

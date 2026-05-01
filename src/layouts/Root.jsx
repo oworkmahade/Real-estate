@@ -1,8 +1,23 @@
 import { Outlet, useNavigation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 function Root() {
   const navigation = useNavigation();
+  const location = useLocation();
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+    });
+
+    AOS.refresh();
+  }, [location]);
+
   return (
     <div className="p-4 m-4 mx-auto">
       <div>

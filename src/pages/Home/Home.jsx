@@ -20,8 +20,12 @@ function Home() {
         <h2 className="mb-6 text-2xl font-bold">Featured Properties</h2>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {displayedEstate.map((estate) => (
-            <EstateCard key={estate.id} estate={estate}></EstateCard>
+          {displayedEstate.map((estate, index) => (
+            <EstateCard
+              key={estate.id}
+              estate={estate}
+              index={index}
+            ></EstateCard>
           ))}
         </div>
 

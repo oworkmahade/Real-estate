@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-function EstateCard({ estate }) {
+function EstateCard({ estate, index }) {
   const {
     id,
     estate_title,
@@ -13,7 +13,12 @@ function EstateCard({ estate }) {
     facilities,
   } = estate;
   return (
-    <div className="overflow-hidden transition-all duration-300 bg-white shadow-md rounded-2xl hover:shadow-2xl hover:-translate-y-1">
+    <div
+      data-aos="fade-up"
+      data-aos-delay={index * 80}
+      data-aos-duration="800"
+      className="overflow-hidden transition-all duration-300 bg-white shadow-md rounded-2xl hover:shadow-2xl hover:-translate-y-1"
+    >
       {/* Image Section */}
       <div className="relative overflow-hidden">
         <img
@@ -74,6 +79,7 @@ function EstateCard({ estate }) {
 
 EstateCard.propTypes = {
   estate: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
 };
 
 export default EstateCard;
