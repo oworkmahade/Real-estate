@@ -51,14 +51,17 @@ const router = createBrowserRouter([
       {
         path: "/properties",
         element: <Properties />,
+        loader: () => fetch("/estates.json"),
       },
       {
         path: "/buy",
         element: <Buy />,
+        loader: () => fetch("/estates.json"),
       },
       {
         path: "/rent",
         element: <Rent />,
+        loader: () => fetch("/estates.json"),
       },
       {
         path: "/agents",
@@ -83,6 +86,7 @@ const router = createBrowserRouter([
             <MyListings />
           </PrivateRoute>
         ),
+        loader: () => fetch("/listings.json"),
       },
       {
         path: "/saved",

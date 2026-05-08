@@ -126,11 +126,14 @@ const Navbar = () => {
                 {/* Dropdown */}
                 <ul className="p-4 mt-3 space-y-2 bg-white shadow-2xl w-60 rounded-2xl menu menu-sm dropdown-content">
                   <li className="pointer-events-none">
-                    <div>
-                      <p className="font-semibold text-gray-800">
+                    <div className="flex flex-col items-start gap-1">
+                      <p className="font-semibold text-gray-800 break-all">
                         {user?.displayName || "User"}
                       </p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+
+                      <p className="text-xs text-gray-500 break-all">
+                        {user?.email}
+                      </p>
                     </div>
                   </li>
 

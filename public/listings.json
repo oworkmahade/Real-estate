@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "title": "Luxury Family Villa",
+    "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+    "location": "Banani, Dhaka",
+    "price": "৳ 2,50,00,000",
+    "status": "For Sale",
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "area": "3500 sq ft"
+  },
+  {
+    "id": 2,
+    "title": "Modern Apartment",
+    "image": "https://images.unsplash.com/photo-1507089947368-19c1da9775ae",
+    "location": "Dhanmondi, Dhaka",
+    "price": "৳ 80,00,000",
+    "status": "For Sale",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "area": "1500 sq ft"
+  },
+  {
+    "id": 3,
+    "title": "Rental Flat",
+    "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+    "location": "Mirpur, Dhaka",
+    "price": "৳ 25,000 / month",
+    "status": "For Rent",
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "area": "900 sq ft"
+  }
+]

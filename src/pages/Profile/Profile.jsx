@@ -53,40 +53,55 @@ function Profile() {
 
         {/* Form */}
         <form onSubmit={handleUpdate} className="space-y-4">
-          {/* Name */}
-          <div>
-            <label className="text-sm">Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 border rounded-lg"
-            />
-          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {/* Name */}
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Name
+              </label>
 
-          {/* Email (readonly) */}
-          <div>
-            <label className="text-sm">Email</label>
-            <input
-              value={user?.email}
-              disabled
-              className="w-full p-3 bg-gray-100 border rounded-lg"
-            />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full p-3 transition border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Email
+              </label>
+
+              <input
+                type="email"
+                value={user?.email}
+                disabled
+                className="w-full p-3 text-gray-500 bg-gray-100 border rounded-xl"
+              />
+            </div>
           </div>
 
           {/* Photo URL */}
           <div>
-            <label className="text-sm">Photo URL</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Photo URL
+            </label>
+
             <input
+              type="text"
               value={photo}
               onChange={(e) => setPhoto(e.target.value)}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 transition border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
           {/* Button */}
           <button
+            type="submit"
             disabled={loading}
-            className="w-full py-3 text-white bg-green-600 rounded-lg"
+            className="w-full py-3 font-semibold text-white transition-all duration-300 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 hover:scale-[1.02] hover:shadow-lg disabled:opacity-70"
           >
             {loading ? "Updating..." : "Save Changes"}
           </button>

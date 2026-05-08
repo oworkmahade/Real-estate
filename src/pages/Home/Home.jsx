@@ -4,6 +4,7 @@ import Navbar from "../Shared/Navbar/Navbar";
 import EstateCard from "./EstateCard";
 import { useState } from "react";
 import PageTitle from "../Shared/PageTitle/PageTitle";
+import Footer from "../Shared/Footer/Footer";
 
 function Home() {
   const estate = useLoaderData();
@@ -51,6 +52,7 @@ function Home() {
           </div>
         )}
       </div>
+      <Footer></Footer>
     </div>
   );
 }
